@@ -1,6 +1,7 @@
 package com.wangyousong.practice.mcpdemo;
 
 import io.modelcontextprotocol.spec.McpSchema;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.mcp.annotation.*;
 import org.springframework.stereotype.Component;
 
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class CalculatorTools {
 
     private final Map<String, String> configData = Map.of("name", "Bob", "age", "30");
@@ -16,6 +18,7 @@ public class CalculatorTools {
     public int add(
             @McpToolParam(description = "First number") int a,
             @McpToolParam(description = "Second number") int b) {
+        log.info("Adding {} and {}", a, b);
         return a + b;
     }
 

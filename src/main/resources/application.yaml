@@ -1,11 +1,5 @@
 spring:
   application:
     name: mcp-demo
-  ai:
-    mcp:
-      server:
-        type: SYNC
-        annotation-scanner:
-          enabled: true
 server:
   port: 8080
