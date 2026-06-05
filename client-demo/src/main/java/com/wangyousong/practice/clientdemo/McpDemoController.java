@@ -60,4 +60,13 @@ public class McpDemoController {
     public String greeting(@RequestParam String name) {
         return mcpDemoService.getGreeting(name);
     }
+
+    /**
+     * 调用 whoami 工具，查看当前客户端身份
+     * GET /demo/whoami
+     */
+    @GetMapping("/whoami")
+    public String whoami() {
+        return mcpDemoService.whoami();
+    }
 }

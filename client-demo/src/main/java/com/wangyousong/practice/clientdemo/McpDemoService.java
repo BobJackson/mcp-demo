@@ -75,6 +75,15 @@ public class McpDemoService {
                 .reduce("", String::concat);
     }
 
+    /**
+     * 调用 whoami 工具，返回客户端身份
+     */
+    public String whoami() {
+        return extractText(getClient().callTool(
+                new McpSchema.CallToolRequest("whoami", Map.of(), Map.of())
+        ));
+    }
+
     private String extractText(McpSchema.CallToolResult result) {
         return result.content().stream()
                 .filter(c -> c instanceof McpSchema.TextContent)
