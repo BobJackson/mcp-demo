@@ -18,10 +18,11 @@ public class FilterConfig {
         FilterRegistrationBean<McpAuthFilter> reg = new FilterRegistrationBean<>(new McpAuthFilter());
         reg.setAsyncSupported(true);   // SSE 长连接必须开启
         reg.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        // 拦截 MCP Server 的两个核心端点
-        // /sse         — 客户端建立 SSE 连接（GET，可带 ?key=xxx）
-        // /mcp/message — 客户端发送 JSON-RPC 消息（POST，可带 ?key=xxx）
-        reg.addUrlPatterns("/sse", "/mcp/message");
+        // 拦截 MCP Server 的核心端点
+        // /sse          — SSE 模式：客户端建立 SSE 连接（GET）
+        // /mcp/message  — SSE 模式：客户端发送 JSON-RPC 消息（POST）
+        // /mcp          — StreamableHTTP 模式：所有请求走这个端点
+        reg.addUrlPatterns("/sse", "/mcp/message", "/mcp");
         return reg;
     }
 }

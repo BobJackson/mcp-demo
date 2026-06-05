@@ -1,6 +1,6 @@
 package com.wangyousong.practice.clientdemo;
 
-import io.modelcontextprotocol.client.transport.HttpClientSseClientTransport;
+import io.modelcontextprotocol.client.transport.HttpClientStreamableHttpTransport;
 import org.springframework.ai.mcp.customizer.McpClientCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,7 @@ public class McpHttpClientConfig {
     private static final String CLIENT_TOKEN = "token-alice";
 
     @Bean
-    public McpClientCustomizer<HttpClientSseClientTransport.Builder> sseTransportCustomizer() {
+    public McpClientCustomizer<HttpClientStreamableHttpTransport.Builder> sseTransportCustomizer() {
         return (name, builder) ->
                 builder.httpRequestCustomizer(new McpTokenHeaderCustomizer(CLIENT_TOKEN));
     }
