@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: client-demo
+  ai:
+    mcp:
+      client:
+        request-timeout: 30s
+        sse:
+          connections:
+            mcp-demo:
+              url: http://localhost:8080
+server:
+  port: 8081
