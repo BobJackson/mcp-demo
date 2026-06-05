@@ -7,3 +7,5 @@ spring:
         type: SYNC
         annotation-scanner:
           enabled: true
+server:
+  port: 8080
