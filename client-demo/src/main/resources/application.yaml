@@ -4,6 +4,7 @@ spring:
   ai:
     mcp:
       client:
+        initialized: false
         request-timeout: 30s
         sse:
           connections:

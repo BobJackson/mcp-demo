@@ -23,7 +23,11 @@ public class McpDemoService {
         if (clients == null || clients.isEmpty()) {
             throw new RuntimeException("MCP Client 不可用，请确认 MCP Server 已启动");
         }
-        return clients.getFirst();
+        McpSyncClient client = clients.getFirst();
+        if (!client.isInitialized()) {
+            client.initialize();
+        }
+        return client;
     }
 
     /**
