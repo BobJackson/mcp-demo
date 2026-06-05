@@ -2,15 +2,14 @@ package com.wangyousong.practice.clientdemo;
 
 import io.modelcontextprotocol.client.McpSyncClient;
 import io.modelcontextprotocol.spec.McpSchema;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 @Service
 @Slf4j
@@ -30,79 +29,59 @@ public class McpDemoService {
         return clients.getFirst();
     }
 
+    private <T> T execute(Function<McpSyncClient, T> action, T fallback) {
+        try {
+            return action.apply(getClient());
+        } catch (Exception e) {
+            log.error("MCP 调用失败: {}", e.getMessage());
+            return fallback;
+        }
+    }
+
     /**
      * 列出所有 MCP Server 提供的工具
      */
     public List<McpSchema.Tool> listTools() {
-        try {
-            return getClient().listTools().tools();
-        } catch (Exception e) {
-            log.error("MCP 调用失败: {}", e.getMessage());
-            return Collections.emptyList();
-        }
+        return execute(c -> c.listTools().tools(), List.of());
     }
 
     /**
      * 列出所有 MCP Server 提供的 Prompt
      */
     public List<McpSchema.Prompt> listPrompts() {
-        try {
-            return getClient().listPrompts().prompts();
-        } catch (Exception e) {
-            log.error("MCP 调用失败: {}", e.getMessage());
-            return Collections.emptyList();
-        }
+        return execute(c -> c.listPrompts().prompts(), List.of());
     }
 
     /**
      * 调用 add 工具
      */
     public String callAdd(int a, int b) {
-        try {
-            McpSchema.CallToolResult result = getClient().callTool(
-                    new McpSchema.CallToolRequest("add", Map.of("a", a, "b", b), Map.of())
-            );
-            return extractText(result);
-        } catch (Exception e) {
-            log.error("MCP 调用失败: {}", e.getMessage());
-            return "调用失败: " + e.getMessage();
-        }
+        return execute(
+                c -> extractText(c.callTool(new McpSchema.CallToolRequest("add", Map.of("a", a, "b", b), Map.of()))),
+                "调用失败"
+        );
     }
 
     /**
      * 读取配置资源
      */
     public String readConfig(String key) {
-        try {
-            McpSchema.ReadResourceResult result = getClient().readResource(
-                    new McpSchema.ReadResourceRequest("config://" + key, Map.of())
-            );
-            return result.contents().stream()
-                    .filter(c -> c instanceof McpSchema.TextResourceContents)
-                    .map(c -> ((McpSchema.TextResourceContents) c).text())
-                    .reduce("", String::concat);
-        } catch (Exception e) {
-            log.error("MCP 调用失败: {}", e.getMessage());
-            return "调用失败: " + e.getMessage();
-        }
+        return execute(c -> c.readResource(new McpSchema.ReadResourceRequest("config://" + key, Map.of()))
+                .contents().stream()
+                .filter(content -> content instanceof McpSchema.TextResourceContents)
+                .map(content -> ((McpSchema.TextResourceContents) content).text())
+                .reduce("", String::concat), "调用失败");
     }
 
     /**
      * 获取 Prompt
      */
     public String getGreeting(String name) {
-        try {
-            McpSchema.GetPromptResult result = getClient().getPrompt(
-                    new McpSchema.GetPromptRequest("greeting", Map.of("name", name), null)
-            );
-            return result.messages().stream()
-                    .filter(m -> m.content() instanceof McpSchema.TextContent)
-                    .map(m -> ((McpSchema.TextContent) m.content()).text())
-                    .reduce("", String::concat);
-        } catch (Exception e) {
-            log.error("MCP 调用失败: {}", e.getMessage());
-            return "调用失败: " + e.getMessage();
-        }
+        return execute(c -> c.getPrompt(new McpSchema.GetPromptRequest("greeting", Map.of("name", name), null))
+                .messages().stream()
+                .filter(m -> m.content() instanceof McpSchema.TextContent)
+                .map(m -> ((McpSchema.TextContent) m.content()).text())
+                .reduce("", String::concat), "调用失败");
     }
 
     private String extractText(McpSchema.CallToolResult result) {
